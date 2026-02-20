@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { supabase } from "../lib/supabase"; // 確認路徑對
+import { supabase } from '../../lib/supabase';// 確認路徑對
 import { v4 as uuidv4 } from "uuid";
 
 export default async function handler(
