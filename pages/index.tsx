@@ -1,36 +1,60 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
 
 export default function Home() {
-  const [name, setName] = useState("");
+  const router = useRouter();
+  const [roomName, setRoomName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [participantName, setParticipantName] = useState("");
 
   const createRoom = async () => {
-    if (!name || !startDate || !endDate) return alert("請填齊欄位");
+    if (!roomName || !startDate || !endDate || !participantName) {
+      alert("請填寫所有欄位");
+      return;
+    }
 
     const res = await fetch("/api/create-room", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, start_date: startDate, end_date: endDate }),
+      body: JSON.stringify({ roomName, startDate, endDate, participantName }),
     });
+
     const data = await res.json();
 
-    if (data.room && data.participantId) {
-      // 將 participantId 存到 localStorage (房主自動登入)
-      localStorage.setItem("participantId", data.participantId);
-      alert(`房間建立成功！自動登入房主`);
-      window.location.href = `/room/${data.room.id}`;
+    if (res.ok) {
+      // 建立成功 → 直接跳轉到房間頁面
+      router.push(`/room/${data.room_id}?participant_id=${data.participant_id}`);
     } else {
-      alert(`建立失敗: ${data.error || data.message}`);
+      alert(data.message || "建立房間失敗");
     }
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>建立房間</h1>
-      <input placeholder="房間名稱" value={name} onChange={e => setName(e.target.value)} />
-      <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
-      <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+    <div>
+      <h1>建立新房間</h1>
+      <input
+        placeholder="房間名稱"
+        value={roomName}
+        onChange={(e) => setRoomName(e.target.value)}
+      />
+      <input
+        type="date"
+        placeholder="開始日期"
+        value={startDate}
+        onChange={(e) => setStartDate(e.target.value)}
+      />
+      <input
+        type="date"
+        placeholder="結束日期"
+        value={endDate}
+        onChange={(e) => setEndDate(e.target.value)}
+      />
+      <input
+        placeholder="你的名字"
+        value={participantName}
+        onChange={(e) => setParticipantName(e.target.value)}
+      />
       <button onClick={createRoom}>建立房間</button>
     </div>
   );
