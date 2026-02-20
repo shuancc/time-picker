@@ -2,6 +2,20 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { supabase } from "../../lib/supabase";
 import { v4 as uuidv4 } from "uuid";
 
+// pages/api/create-room.ts
+import type { NextApiRequest, NextApiResponse } from "next";
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === "POST") {
+    // 回傳合法 JSON
+    res.status(200).json({ roomId: Date.now().toString() });
+  } else {
+    // 其他 method 直接報錯
+    res.setHeader("Allow", ["POST"]);
+    res.status(405).json({ error: `Method ${req.method} not allowed` });
+  }
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
